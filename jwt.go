@@ -164,6 +164,32 @@ func (h Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 					isAuthorized = append(isAuthorized, ruleMatches)
 				case DENY:
 					isAuthorized = append(isAuthorized, !ruleMatches)
+				case ALLOWPATH:
+					switch rule.Value {
+					case "match":
+						isAuthorized = append(isAuthorized, r.URL.EscapedPath() == v.(string))
+					case "prefix":
+						isAuthorized = append(isAuthorized, strings.HasPrefix(r.URL.EscapedPath(), v.(string)))
+					case "suffix":
+						isAuthorized = append(isAuthorized, strings.HasSuffix(r.URL.EscapedPath(), v.(string)))
+					case "contains":
+						isAuthorized = append(isAuthorized, strings.Contains(r.URL.EscapedPath(), v.(string)))
+					default:
+						return handleUnauthorized(w, r, p, h.Realm), fmt.Errorf("unknown rule type")
+					}
+				case DENYPATH:
+					switch rule.Value {
+					case "match":
+						isAuthorized = append(isAuthorized, r.URL.EscapedPath() != v.(string))
+					case "prefix":
+						isAuthorized = append(isAuthorized, !strings.HasPrefix(r.URL.EscapedPath(), v.(string)))
+					case "suffix":
+						isAuthorized = append(isAuthorized, !strings.HasSuffix(r.URL.EscapedPath(), v.(string)))
+					case "contains":
+						isAuthorized = append(isAuthorized, strings.Contains(r.URL.EscapedPath(), v.(string)))
+					default:
+						return handleUnauthorized(w, r, p, h.Realm), fmt.Errorf("unknown rule type")
+					}
 				default:
 					return handleUnauthorized(w, r, p, h.Realm), fmt.Errorf("unknown rule type")
 				}

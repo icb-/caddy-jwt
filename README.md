@@ -51,6 +51,48 @@ The middleware will deny everyone with `role: member` but will allow the specifi
 
 If the optional `redirect` is set, the middleware will send a redirect to the supplied location (HTTP 303) instead of an access denied code, if the access is denied.
 
+### Authorizing path access from claim
+
+You can optionally use claim information to control access by path information contained in those claims.
+
+```
+jwt {
+  ...
+  allowpath [claim] [match]
+  denypath [claim] [match]
+}
+```
+
+`allowpath` and `denypath` allow and deny access based on comparing the value of a claim with the request path.
+
+| Match      | Comparison |
+| ---------- | ---------- |
+| `match`    | Equal      |
+| `prefix`   | Prefix     |
+| `suffix`   | Suffix     |
+| `contains` | Contains   |
+
+Given a claim like
+
+```json
+{
+  "path": "/foo/bar"
+}
+```
+
+And a configuration like
+
+```
+jwt {
+  ...
+  allowpath path prefix
+}
+
+Would allow access to `/foo/bar`, `/foo/bar/baz`, but not `/foo/baz`.
+
+
+```
+
 ### Ways of passing a token for validation
 
 There are three ways to pass the token for validation: (1) in the `Authorization` header, (2) as a cookie, and (3) as a URL query parameter.  The middleware will **by default** look in those places in the order listed and return `401` if it can't find any token.

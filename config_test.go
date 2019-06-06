@@ -63,6 +63,17 @@ var _ = Describe("JWTAuth Config", func() {
 				{`jwt {
 					deny role member
 				}`, true, nil},
+				{`jwt {
+					path /test
+					denypath claim1 match
+					denypath claim2 prefix
+					denypath claim3 suffix
+					denypath claim4 contains
+					allowpath claim5 match
+					allowpath claim6 prefix
+					allowpath claim7 suffix
+					allowpath claim8 contains
+				}`, false, []Rule{{Path: "/test", AccessRules: []AccessRule{{DENYPATH, "claim1", "match"}, {DENYPATH, "claim2", "prefix"}, {DENYPATH, "claim3", "suffix"}, {DENYPATH, "claim4", "contains"}, {ALLOWPATH, "claim5", "match"}, {ALLOWPATH, "claim6", "prefix"}, {ALLOWPATH, "claim7", "suffix"}, {ALLOWPATH, "claim8", "contains"}}}}},
 				{`jwt /path1
 				jwt /path2`, false, []Rule{{Path: "/path1"}, {Path: "/path2"}}},
 				{`jwt {

@@ -16,6 +16,14 @@ const (
 
 	// DENY represents a rule that should deny access based on claim value
 	DENY
+
+	// ALLOWPATH represents a rule that should allow access based on a claim value
+	// when compared to the accessed URL
+	ALLOWPATH
+
+	// DENYPATH represents a rule that should deny access based on a claim value
+	// when compared to the accessed URL
+	DENYPATH
 )
 
 // EncryptionType specifies the valid configuration for a path
@@ -139,6 +147,18 @@ func parse(c *caddy.Controller) ([]Rule, error) {
 					}
 				case "allowroot":
 					r.AllowRoot = true
+				case "allowpath":
+					args1 := c.RemainingArgs()
+					if len(args1) != 2 {
+						return nil, c.ArgErr()
+					}
+					r.AccessRules = append(r.AccessRules, AccessRule{Authorize: ALLOWPATH, Claim: args1[0], Value: args1[1]})
+				case "denypath":
+					args1 := c.RemainingArgs()
+					if len(args1) != 2 {
+						return nil, c.ArgErr()
+					}
+					r.AccessRules = append(r.AccessRules, AccessRule{Authorize: DENYPATH, Claim: args1[0], Value: args1[1]})
 				case "allow":
 					args1 := c.RemainingArgs()
 					if len(args1) != 2 {
